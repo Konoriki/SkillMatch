@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SkillMatch</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>SkillMatch</h1>
+
+  <section>
+    <h2>Ajouter un CV</h2>
+    <form method="post" action="/upload" enctype="multipart/form-data">
+      <label for="file">Fichier PDF du CV</label>
+      <input type="file" id="file" name="file" accept="application/pdf" required>
+      <button type="submit">Envoyer</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Rechercher un candidat par compétence</h2>
+    <form method="get" action="/">
+      <label for="q">Compétence recherchée</label>
+      <input type="search" id="q" name="q" value="{{ query or '' }}">
+      <button type="submit">Rechercher</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>
+      {% if query %}Candidats correspondant à « {{ query }} »{% else %}Tous les candidats{% endif %}
+    </h2>
+    {% if candidats %}
+    <table>
+      <caption class="sr-only">Liste des candidats et de leurs compétences détectées</caption>
+      <thead>
+        <tr>
+          <th scope="col">Fichier</th>
+          <th scope="col">Compétences</th>
+          <th scope="col">Ajouté le</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for candidat in candidats %}
+        <tr>
+          <td>{{ candidat.nom_fichier }}</td>
+          <td>{{ candidat.competences|map(attribute='nom')|join(', ') }}</td>
+          <td>{{ candidat.date_ajout.strftime('%d/%m/%Y %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>Aucun candidat{% if query %} pour cette compétence{% endif %}.</p>
+    {% endif %}
+  </section>
+</body>
+</html>

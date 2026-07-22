@@ -1,0 +1,109 @@
+:root {
+  color-scheme: light;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+h1 {
+  font-size: 1.75rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  border-bottom: 2px solid #0053a6;
+  padding-bottom: 0.25rem;
+}
+
+section {
+  margin-bottom: 2rem;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+input[type="file"],
+input[type="search"] {
+  padding: 0.5rem;
+  border: 1px solid #666666;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 24rem;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+button {
+  margin-top: 0.75rem;
+  padding: 0.6rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #0053a6;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #003d7a;
+}
+
+/* Contour bien visible au clavier, décalé du bouton pour rester lisible
+   même sur fond de couleur (accessibilité RGAA). */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid #1a1a1a;
+  outline-offset: 2px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+caption {
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid #dddddd;
+}
+
+th {
+  background: #f3f4f6;
+}
+
+/* Masque visuellement sans display:none, sinon les lecteurs d'écran
+   ignorent aussi le contenu. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
