@@ -20,6 +20,32 @@ def test_add_candidat_creates_candidat_and_competences(session):
     assert {c.nom for c in candidat.competences} == {"Python", "SQL"}
 
 
+def test_add_candidat_retries_after_concurrent_competence_creation(session, monkeypatch):
+    """Regression issue #2 : si une autre session cree la meme nouvelle
+    competence entre notre lecture et notre commit, on retente au lieu de
+    laisser planter l'IntegrityError."""
+    engine = session.get_bind()
+    original_commit = session.commit
+    appels = {"n": 0}
+
+    def commit_avec_interference():
+        appels["n"] += 1
+        if appels["n"] == 1:
+            with Session(engine) as autre_session:
+                autre_session.add(Competence(nom="Rust"))
+                autre_session.commit()
+        original_commit()
+
+    monkeypatch.setattr(session, "commit", commit_avec_interference)
+
+    candidat = add_candidat(session, "cv_a.pdf", ["Rust"])
+
+    assert candidat.id is not None
+    assert {c.nom for c in candidat.competences} == {"Rust"}
+    competences_rust = session.exec(select(Competence).where(Competence.nom == "Rust")).all()
+    assert len(competences_rust) == 1
+
+
 def test_add_candidat_reuses_existing_competence(session):
     add_candidat(session, "cv_jean.pdf", ["Python"])
     add_candidat(session, "cv_marie.pdf", ["Python", "Docker"])
