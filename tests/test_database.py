@@ -54,3 +54,30 @@ def test_search_candidats_by_competence_returns_empty_list_when_no_match(session
     resultats = search_candidats_by_competence(session, "Rust")
 
     assert resultats == []
+
+
+def test_search_does_not_treat_percent_as_sql_wildcard(session):
+    """Regression issue #1 : "P%" ne doit pas matcher "Python" ni "PHP"."""
+    add_candidat(session, "cv_jean.pdf", ["Python", "PHP", "SQL"])
+
+    resultats = search_candidats_by_competence(session, "P%")
+
+    assert resultats == []
+
+
+def test_search_does_not_treat_underscore_as_sql_wildcard(session):
+    """Regression issue #1 : "S_L" ne doit pas matcher "SQL" via le joker "_"."""
+    add_candidat(session, "cv_jean.pdf", ["SQL"])
+
+    resultats = search_candidats_by_competence(session, "S_L")
+
+    assert resultats == []
+
+
+def test_search_returns_each_candidat_only_once(session):
+    """Regression issue #1 : pas de doublon quand plusieurs compétences matchent."""
+    add_candidat(session, "cv_jean.pdf", ["Python", "PHP"])
+
+    resultats = search_candidats_by_competence(session, "Python")
+
+    assert len(resultats) == 1
