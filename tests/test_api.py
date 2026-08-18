@@ -27,6 +27,15 @@ app.dependency_overrides[get_session] = override_get_session
 client = TestClient(app)
 
 
+def test_health_returns_ok_status():
+    response = client.get("/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["checks"]["database"] == "ok"
+    assert "timestamp" in data
+
+
 def test_upload_valid_pdf_returns_extracted_text():
     pdf_bytes = make_pdf(["Competences: Python, SQL"])
     response = client.post(

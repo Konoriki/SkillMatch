@@ -1,4 +1,5 @@
 venv/
+.venv/
 __pycache__/
 *.pyc
 *.db
@@ -7,3 +8,4 @@ htmlcov/
 .coverage
 *.egg-info/
 .ruff_cache/
+monitoring/probe.log
