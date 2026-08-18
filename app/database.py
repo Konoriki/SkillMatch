@@ -9,6 +9,7 @@ from collections.abc import Generator
 from datetime import datetime, timezone
 from pathlib import Path
 
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select
 
 DB_PATH = Path(__file__).resolve().parent.parent / "skillmatch.db"
@@ -54,19 +55,33 @@ def get_session() -> Generator[Session, None, None]:
 
 
 def add_candidat(session: Session, nom_fichier: str, noms_competences: list[str]) -> Candidat:
-    """Enregistre un candidat et associe ses compétences (réutilise celles qui existent déjà)."""
-    competences = []
-    for nom in noms_competences:
-        competence = session.exec(select(Competence).where(Competence.nom == nom)).first()
-        if competence is None:
-            competence = Competence(nom=nom)
-        competences.append(competence)
+    """Enregistre un candidat et associe ses compétences (réutilise celles qui existent déjà).
 
-    candidat = Candidat(nom_fichier=nom_fichier, competences=competences)
-    session.add(candidat)
-    session.commit()
-    session.refresh(candidat)
-    return candidat
+    La vérification puis création d'une compétence n'est pas atomique : si
+    une autre requête crée la même compétence entre-temps, le commit lève
+    une IntegrityError (contrainte unique sur Competence.nom). Dans ce cas
+    on retente une fois, la compétence étant alors trouvée par la relecture
+    (voir issue #2).
+    """
+    for tentative in range(2):
+        competences = []
+        for nom in noms_competences:
+            competence = session.exec(select(Competence).where(Competence.nom == nom)).first()
+            if competence is None:
+                competence = Competence(nom=nom)
+            competences.append(competence)
+
+        candidat = Candidat(nom_fichier=nom_fichier, competences=competences)
+        session.add(candidat)
+        try:
+            session.commit()
+        except IntegrityError:
+            session.rollback()
+            if tentative == 1:
+                raise
+            continue
+        session.refresh(candidat)
+        return candidat
 
 
 def _escape_like_wildcards(value: str) -> str:
