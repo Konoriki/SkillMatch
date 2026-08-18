@@ -3,6 +3,17 @@
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 ce projet suit le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [1.1.1] - 2026-08-18
+
+### Corrigé
+- Race condition sur la création d'une compétence lors d'imports concurrents :
+  `add_candidat()` vérifiait puis créait une compétence sans que ce soit
+  atomique, ce qui provoquait une `IntegrityError` non gérée (500) quand
+  deux requêtes introduisaient la même nouvelle compétence en même temps.
+  Ajout d'une retentative après échec du commit, couverte par un test de
+  non-régression déterministe
+  ([#2](https://github.com/Konoriki/SkillMatch/issues/2)).
+
 ## [1.1.0] - 2026-08-18
 
 ### Ajouté
@@ -29,9 +40,7 @@ ce projet suit le [versionnage sémantique](https://semver.org/lang/fr/).
   leurs versions patchées ; scan relancé sans vulnérabilité restante. Voir
   `docs/mise_a_jour_dependances.md`.
 
-### Connu (anomalies ouvertes, non corrigées dans cette version)
-- Race condition sur la création d'une compétence lors d'imports concurrents,
-  pouvant provoquer une erreur 500 ([#2](https://github.com/Konoriki/SkillMatch/issues/2)).
+### Connu (anomalie ouverte, non corrigée dans cette version)
 - Vérification `Content-Type` trop stricte à l'upload, pouvant rejeter à
   tort un PDF valide envoyé avec un type MIME générique
   ([#3](https://github.com/Konoriki/SkillMatch/issues/3)).
