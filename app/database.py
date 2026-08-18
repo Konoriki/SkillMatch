@@ -69,12 +69,26 @@ def add_candidat(session: Session, nom_fichier: str, noms_competences: list[str]
     return candidat
 
 
+def _escape_like_wildcards(value: str) -> str:
+    """Échappe les métacaractères SQL % et _ pour que ILIKE fasse une recherche exacte.
+
+    Sans ça, une recherche comme "P%" matche aussi "PHP" en plus de "Python"
+    (voir issue #1).
+    """
+    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
 def search_candidats_by_competence(session: Session, nom_competence: str) -> list[Candidat]:
-    """Retourne les candidats possédant la compétence donnée (recherche insensible à la casse)."""
+    """Retourne les candidats possédant la compétence donnée.
+
+    Recherche exacte, insensible à la casse : les métacaractères SQL % et _
+    saisis par l'utilisateur sont échappés (voir _escape_like_wildcards).
+    """
     statement = (
         select(Candidat)
         .join(CandidatCompetenceLink)
         .join(Competence)
-        .where(Competence.nom.ilike(nom_competence))
+        .where(Competence.nom.ilike(_escape_like_wildcards(nom_competence), escape="\\"))
+        .distinct()
     )
     return list(session.exec(statement).all())
