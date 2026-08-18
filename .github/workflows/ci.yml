@@ -26,6 +26,11 @@ jobs:
       - name: Tests + couverture
         run: pytest --cov=app --cov-report=term-missing
 
+      - name: Audit des vulnérabilités des dépendances (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
+
   build-docker-image:
     needs: lint-and-test
     runs-on: ubuntu-latest
