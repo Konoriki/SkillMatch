@@ -14,7 +14,7 @@ ce projet suit le [versionnage sémantique](https://semver.org/lang/fr/).
   non-régression déterministe
   ([#2](https://github.com/Konoriki/SkillMatch/issues/2)).
 
-## [1.1.0] - 2026-08-18
+## [1.1] - 2026-08-18
 
 ### Ajouté
 - Endpoint `GET /health` : statut de l'application + vérification d'accès
